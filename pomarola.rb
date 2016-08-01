@@ -18,8 +18,8 @@ class Pomarola
   def initialize
     @stopped_pomodoro = true
     @pomodoro_count = 0
-    @pomodoro_length = 15
-    @break_length = 5
+    @pomodoro_length = 1500
+    @break_length = 300
     @long_break_multiplier = 4
     
     @ui = Gtk::Builder.new
