@@ -8,7 +8,7 @@ module Pomodoro
       @start = Time.now
       @break_duration = break_duration
       
-      @end = @start + duration + @break_duration 
+      @end = @start + (duration + @break_duration)
     end
 
     def time_remaining
@@ -18,6 +18,7 @@ module Pomodoro
     def work_time_remaining
       @end - (Time.now.to_i + @break_duration)
     end
+    
     
     def pause
       @remaining_at_pause = time_remaining

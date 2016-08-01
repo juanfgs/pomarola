@@ -18,8 +18,8 @@ class Pomarola
   def initialize
     @stopped_pomodoro = true
     @pomodoro_count = 0
-    @pomodoro_length = 1500
-    @break_length = 300
+    @pomodoro_length = 15
+    @break_length = 5
     @long_break_multiplier = 4
     
     @ui = Gtk::Builder.new
@@ -62,35 +62,41 @@ class Pomarola
       @current_pomodoro.resume #Recalculate current pomodoro status
     end
     
+    @break_notify, @end_notify = false
+    
     change_play_status( :pause)
     
     # execute in the GLib loop each 0.5 seconds
     @loop = GLib::Timeout.add_seconds(0.5) do
       
-      
       remaining = @current_pomodoro.time_remaining
- 
-      work_time_remaining = @current_pomodoro.work_time_remaining
       
       if !(remaining.to_i <= 0) && @start_button.label == Gtk::Stock::MEDIA_PAUSE
         
-        @timer.set_text work_time_remaining.strftime("%M:%S")
-        
-        if remaining.to_i < @break_length && @break_length - 1 < remaining.to_i #we notify the user this cycle is about to end
-          Notify.notify "Time to rest", "This cycle is over, time for some rest"
+        if remaining.to_i <= @break_length  #we notify the user this cycle is about to end
+          
+          @timer.set_text @current_pomodoro.time_remaining.strftime("(Break) %M:%S")
+          if !@break_notify
+            Notify.notify "Time to rest", "This cycle is over, time for some rest"
+            @break_notify = true
+          end
+        else
+          @timer.set_text @current_pomodoro.work_time_remaining.strftime("%M:%S")
         end
         
-        if remaining.to_i < 60 && 59 < remaining.to_i #we notify the user this cycle is about to end
+        if remaining.to_i <= 2 && !@end_notify  #we notify the user this cycle is about to end
           Notify.notify "Your break is about to finish", "Get ready for the next cycle"
+          @end_notify = true
         end
         
-        if (remaining.to_i <= 0) #We notify the user and save the pomodoro
-          @current_pomodoro = Pomodoro::Pomodoro.new()
-          @pomodoro_count++
-                         
-          update_log(@current_pomodoro)
-        end
         true # continue in the loop
+      elsif !@stopped_pomodoro
+        update_log(@current_pomodoro)
+        if @pomodoro_count == 4 
+          @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length * @long_break_multiplier)
+        else
+          @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length)
+        end
       else
         false # stop the loop
       end
