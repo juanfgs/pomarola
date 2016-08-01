@@ -63,10 +63,9 @@ class Pomarola
     end
     
     @break_notify, @end_notify = false
+    change_play_status(:pause)
     
-    change_play_status( :pause)
-    
-    # execute in the GLib loop each 0.5 seconds
+    # execute in the GLib loop each 0.5 second
     @loop = GLib::Timeout.add_seconds(0.5) do
       
       remaining = @current_pomodoro.time_remaining
@@ -90,7 +89,7 @@ class Pomarola
         end
         
         true # continue in the loop
-      elsif !@stopped_pomodoro
+      elsif !@stopped_pomodoro &&  (remaining.to_i <= 0) 
         update_log(@current_pomodoro)
         if @pomodoro_count == 3 #check whether is time for the long break 
           @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length * @long_break_multiplier)
@@ -98,6 +97,7 @@ class Pomarola
         else
           @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length)
         end
+        @break_notify,@end_notify = false
       else
         false # stop the loop
       end
@@ -150,9 +150,7 @@ class Pomarola
 
   # Pauses the current pomodoro
   def pause_pomodoro(button)
-    @paused = true
     @current_pomodoro.pause
-
     change_play_status(:start)
   end
   
