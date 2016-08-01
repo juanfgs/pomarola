@@ -23,7 +23,7 @@ class Pomarola
     @long_break_multiplier = 4
     
     @ui = Gtk::Builder.new
-    @ui.add_from_file "ui/tomate.ui"
+    @ui.add_from_file "ui/pomarola.ui"
 
     #connect all handlers except the start_pomodoro 
     @ui.connect_signals do |handler|
@@ -72,10 +72,10 @@ class Pomarola
       remaining = @current_pomodoro.time_remaining
       
       if !(remaining.to_i <= 0) && @start_button.label == Gtk::Stock::MEDIA_PAUSE
-        
         if remaining.to_i <= @break_length  #we notify the user this cycle is about to end
           
           @timer.set_text @current_pomodoro.time_remaining.strftime("(Break) %M:%S")
+          
           if !@break_notify
             Notify.notify "Time to rest", "This cycle is over, time for some rest"
             @break_notify = true
@@ -92,8 +92,9 @@ class Pomarola
         true # continue in the loop
       elsif !@stopped_pomodoro
         update_log(@current_pomodoro)
-        if @pomodoro_count == 4 
+        if @pomodoro_count == 3 #check whether is time for the long break 
           @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length * @long_break_multiplier)
+          @pomodoro_count = 0
         else
           @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length)
         end
@@ -107,10 +108,8 @@ class Pomarola
   # updates the log list
   #
   def update_log(pomodoro)
-
+    
   end
-
-  
 
   #
   # This method changes the images on the play button to the paused status
