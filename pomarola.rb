@@ -18,8 +18,8 @@ class Pomarola
   def initialize
     @stopped_pomodoro = true
     @pomodoro_count = 0
-    @pomodoro_length = 1500
-    @break_length = 300
+    @pomodoro_length = 10
+    @break_length = 3
     @long_break_multiplier = 4
     
     @ui = Gtk::Builder.new
@@ -71,7 +71,7 @@ class Pomarola
       remaining = @current_pomodoro.time_remaining
       
       if !(remaining.to_i <= 0) && @start_button.label == Gtk::Stock::MEDIA_PAUSE
-        if remaining.to_i <= @break_length  #we notify the user this cycle is about to end
+        if remaining.to_i <= @current_pomodoro.break_duration  #we notify the user this cycle is about to end
           
           @timer.set_text @current_pomodoro.time_remaining.strftime("(Break) %M:%S")
           
@@ -89,6 +89,7 @@ class Pomarola
         end
         
         true # continue in the loop
+        
       elsif !@stopped_pomodoro &&  (remaining.to_i <= 0) 
         update_log(@current_pomodoro)
         if @pomodoro_count == 3 #check whether is time for the long break 
@@ -96,19 +97,20 @@ class Pomarola
           @pomodoro_count = 0
         else
           @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length)
+          @pomodoro_count += 1
         end
         @break_notify,@end_notify = false
+        true
       else
         false # stop the loop
       end
     end
   end
-
   #
   # updates the log list
   #
   def update_log(pomodoro)
-    
+    puts "updating log"
   end
 
   #

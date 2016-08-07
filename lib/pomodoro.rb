@@ -1,7 +1,7 @@
 module Pomodoro
 
   class Pomodoro
-    attr_accessor :label, :finished, :remaining_at_pause
+    attr_accessor :label, :finished, :remaining_at_pause, :break_duration
     
     def initialize(duration,break_duration)
       @finished = false
@@ -19,7 +19,6 @@ module Pomodoro
       @end - (Time.now.to_i + @break_duration)
     end
     
-    
     def pause
       @remaining_at_pause = time_remaining
     end
@@ -28,7 +27,6 @@ module Pomodoro
       @end = Time.now + @remaining_at_pause.to_i
     end 
 
-    
   end
 end
   
