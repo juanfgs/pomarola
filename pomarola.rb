@@ -18,13 +18,13 @@ class Pomarola
   def initialize
     @stopped_pomodoro = true
     @pomodoro_count = 0
-    @pomodoro_length = 10
-    @break_length = 3
+    @pomodoro_length = 1500
+    @break_length = 300
     @long_break_multiplier = 4
     
     @ui = Gtk::Builder.new
     @ui.add_from_file "ui/pomarola.ui"
-
+    
     #connect all handlers except the start_pomodoro 
     @ui.connect_signals do |handler|
       unless handler == "start_pomodoro"
@@ -36,8 +36,28 @@ class Pomarola
     @timer = @ui.get_object "pomodoro_timer"
     @main_window = @ui.get_object "main_window"
     @start_button = @ui.get_object "start_pomodoro"
+    @past_pomodoros_list = @ui.get_object "past_pomodoros_list"
+    @past_pomodoros_view = @ui.get_object "past_pomodoros_view"
+    @pomodoro_renderer_label = Gtk::CellRendererText.new
+    @pomodoro_renderer_label.set_property 'editable', true
+    @pomodoro_renderer = Gtk::CellRendererText.new
+    @past_pomodoros_view.model = @past_pomodoros_list
+
+    @cols = [
+      Gtk::TreeViewColumn.new("Name", @pomodoro_renderer_label, :text => 0),
+      Gtk::TreeViewColumn.new("Time Rested", @pomodoro_renderer, :text => 1),
+    ]
+    
+    @cols.each do |col|
+      @past_pomodoros_view.append_column col
+    end
+    
     @start_pomodoro_id = @start_button.signal_connect "clicked" do |button|
       start_pomodoro(button)
+    end
+    
+    @pomodoro_renderer_label.signal_connect "edited" do |widget,row,new_text|
+      update_cell(widget,row,new_text)
     end
     
     @main_window.signal_connect "destroy" do
@@ -110,7 +130,10 @@ class Pomarola
   # updates the log list
   #
   def update_log(pomodoro)
-    puts "updating log"
+    diff = pomodoro.start - pomodoro.break_duration
+    iter = @past_pomodoros_list.append()
+    iter[0] = '(Insert Label here)'
+    iter[1] = diff.strftime("%M:%S")
   end
 
   #
@@ -154,6 +177,11 @@ class Pomarola
   def pause_pomodoro(button)
     @current_pomodoro.pause
     change_play_status(:start)
+  end
+
+  def update_cell(cell,row,new_text )
+    iter = @past_pomodoros_list.get_iter(row)
+    iter[0] = new_text
   end
   
 end

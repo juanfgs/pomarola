@@ -1,7 +1,7 @@
 module Pomodoro
 
   class Pomodoro
-    attr_accessor :label, :finished, :remaining_at_pause, :break_duration
+    attr_accessor :label, :finished, :remaining_at_pause, :break_duration, :start
     
     def initialize(duration,break_duration)
       @finished = false
