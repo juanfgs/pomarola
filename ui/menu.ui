@@ -78,13 +78,14 @@
       </packing>
     </child>
     <child>
-      <object class="GtkButton">
+      <object class="GtkButton" id="about_button">
         <property name="label">gtk-about</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
         <property name="relief">none</property>
         <property name="use_stock">True</property>
+        <signal name="clicked" handler="about_pomarola" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">0</property>

@@ -1,10 +1,26 @@
 #!/usr/bin/env ruby
+# coding: utf-8
 
 # Pomarola is a Ruby/GTK based task manager to work with the pomodoro technique
 # It allows not only to track time in Pomodoro's style but also to keep a work log
 # of previous pomodoros.
 
-# Author:: 
+#      This file is part of Pomarola.
+
+#    Pomarola is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+
+#    Pomarola is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+
+#    You should have received a copy of the GNU General Public License
+#    along with Pomarola.  If not, see <http://www.gnu.org/licenses/>.
+
+# Author: Juan Francisco Giménez Silva 
 
 require "gtk3"
 require "glib2"
@@ -38,7 +54,7 @@ class Pomarola
     
     #connect all handlers except the start_pomodoro 
     @ui.connect_signals do |handler|
-      unless handler == "start_pomodoro"
+      unless handler == "start_pomodoro "
         method(handler)
       end
     end
@@ -47,12 +63,13 @@ class Pomarola
     @timer = @ui.get_object "pomodoro_timer"
     @main_window = @ui.get_object "main_window"
     @start_button = @ui.get_object "start_pomodoro"
-    @past_pomodoros_list = @ui.get_object "past_pomodoros_list"
+    @about = @ui.get_object "about_pomarola"
+    @work_log = @ui.get_object "work_log"
     @past_pomodoros_view = @ui.get_object "past_pomodoros_view"
     @pomodoro_renderer_label = Gtk::CellRendererText.new
     @pomodoro_renderer_label.set_property 'editable', true
     @pomodoro_renderer = Gtk::CellRendererText.new
-    @past_pomodoros_view.model = @past_pomodoros_list
+    @past_pomodoros_view.model = @work_log
 
 
     
@@ -105,6 +122,11 @@ class Pomarola
 
   def quit()
     Gtk.main_quit
+  end
+
+  def about_pomarola
+
+   @about.show_all 
   end
 
   def save_file()
@@ -200,7 +222,7 @@ class Pomarola
   #
   def update_log(pomodoro)
     diff = pomodoro.start
-    iter = @past_pomodoros_list.append()
+    iter = @work_log.append()
     iter[0] = '(Insert Label here)'
     iter[1] = diff.strftime("%M:%S")
   end
@@ -250,7 +272,7 @@ class Pomarola
   end
 
   def update_cell(cell,row,new_text )
-    iter = @past_pomodoros_list.get_iter(row)
+    iter = @work_log.get_iter(row)
     iter[0] = new_text
   end
   
