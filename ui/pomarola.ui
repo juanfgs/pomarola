@@ -27,7 +27,7 @@
     <property name="transient_for">main_window</property>
     <property name="program_name">Pomarola</property>
     <property name="version">0.1a</property>
-    <property name="website">http://juanfgs.com/pomarola/</property>
+    <property name="website">http://juanfgs.com/page/pomarola/</property>
     <property name="authors">Giménez Silva Juan Francisco &lt;juanfgs@gmail.com&gt;</property>
     <property name="logo">icon.png</property>
     <property name="license_type">gpl-3-0</property>
