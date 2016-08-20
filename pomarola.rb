@@ -152,7 +152,7 @@ class Pomarola
   
   def open_file()
     dialog = Gtk::FileChooserDialog.new({
-                                          :title => "Save File",
+                                          :title => "Open File",
                                           :parent => @main_window,
                                           :action => Gtk::FileChooserAction::OPEN,
                                           :buttons => [  [Gtk::Stock::CANCEL, Gtk::ResponseType::CANCEL],[Gtk::Stock::OPEN, Gtk::ResponseType::ACCEPT] ]
