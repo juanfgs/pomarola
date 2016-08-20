@@ -126,7 +126,10 @@ class Pomarola
 
   def about_pomarola
 
-   @about.show_all 
+    if @about.run == Gtk::ResponseType::DELETE_EVENT
+      @about.hide
+    end
+    
   end
 
   def save_file()
