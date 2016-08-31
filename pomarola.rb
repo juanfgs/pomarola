@@ -54,9 +54,7 @@ class Pomarola
     
     #connect all handlers except the start_pomodoro 
     @ui.connect_signals do |handler|
-      unless handler == "start_pomodoro "
         method(handler)
-      end
     end
 
     #Get the objects from the glade file 
@@ -84,11 +82,8 @@ class Pomarola
     @cols.each do |col|
       @past_pomodoros_view.append_column col
     end
-    
-    @start_pomodoro_id = @start_button.signal_connect "clicked" do |button|
-      start_pomodoro(button)
-    end
-    
+
+
     @pomodoro_renderer_label.signal_connect "edited" do |widget,row,new_text|
       update_cell(widget,row,new_text)
     end
@@ -176,12 +171,10 @@ class Pomarola
     
     @break_notify, @end_notify = false
     change_play_status(:pause)
-    
+
     # execute in the GLib loop each 0.5 second
     @loop = GLib::Timeout.add_seconds(0.5) do
-      
       remaining = @current_pomodoro.time_remaining
-      
       if !(remaining.to_i <= 0) && @start_button.label == Gtk::Stock::MEDIA_PAUSE
         if remaining.to_i <= @current_pomodoro.break_duration  #we notify the user this cycle is about to end
           
@@ -201,9 +194,8 @@ class Pomarola
           Notify.notify "Your break is about to finish", "Get ready for the next cycle"
           @end_notify = true
         end
-        
         true # continue in the loop
-      elsif !@stopped_pomodoro &&  (remaining.to_i <= 0) 
+      elsif !@stopped_pomodoro && (remaining.to_i <= 0)
         update_log(@current_pomodoro)
         if @pomodoro_count == 3 #check whether is time for the long break 
           @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length * @long_break_multiplier)
@@ -227,9 +219,19 @@ class Pomarola
     diff = pomodoro.start
     iter = @work_log.append()
     iter[0] = '(Insert Label here)'
-    iter[1] = diff.strftime("%M:%S")
+    iter[1] = diff.strftime("%H:%M:%S")
   end
 
+  def toggle_start(button)
+    if button.active?
+      change_play_status(:pause)
+      start_pomodoro(button)
+    else
+      change_play_status(:start)
+      pause_pomodoro(button)
+    end
+  end
+  
   #
   # This method changes the images on the play button to the paused status
   # more importantly it disconnects the current handler attached to the clicked event
@@ -246,18 +248,10 @@ class Pomarola
       @status_icon.file = "ui/icon-pause.png"
       @start_button.label = Gtk::Stock::MEDIA_PLAY
       @start_button.set_image Gtk::Image.new( :stock =>  Gtk::Stock::MEDIA_PLAY)
-      @start_button.signal_handler_disconnect @start_pomodoro_id
-      @start_pomodoro_id = @start_button.signal_connect "clicked" do |button|
-        start_pomodoro(button)
-      end
     when :pause
       @status_icon.file = "ui/icon-play.png"
       @start_button.label = Gtk::Stock::MEDIA_PAUSE
-      @start_button.set_image Gtk::Image.new( :stock =>  Gtk::Stock::MEDIA_PAUSE)
-      @start_button.signal_handler_disconnect @start_pomodoro_id
-      @start_pomodoro_id = @start_button.signal_connect "clicked" do |button|
-        pause_pomodoro(button)
-      end
+      @start_button.set_image Gtk::Image.new( :stock =>  Gtk::Stock::MEDIA_PAUSE)   
     end
   end
   

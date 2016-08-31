@@ -19,10 +19,10 @@
 module Pomodoro
 
   class Pomodoro
-    attr_accessor :label, :finished, :remaining_at_pause, :break_duration, :start
+    attr_accessor :label, :finished, :remaining_at_pause, :break_duration, :start, :paused
     
     def initialize(duration,break_duration)
-      @finished = false
+      @paused, @finished = false
       @start = Time.now
       @break_duration = break_duration
       
