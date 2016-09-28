@@ -15,18 +15,26 @@
 #    along with Pomarola.  If not, see <http://www.gnu.org/licenses/>.
 
 # Author: Juan Francisco Giménez Silva 
+require 'json'
 
 module Pomodoro
 
   class Pomodoro
     attr_accessor :label, :finished, :remaining_at_pause, :break_duration, :start
     
-    def initialize(duration,break_duration)
+    def initialize(args)
       @finished = false
-      @start = Time.now
-      @break_duration = break_duration
-      
-      @end = @start + (duration + @break_duration)
+      if args[:hash].nil?
+        @start = Time.now
+        @label = args[:label]
+        @break_duration = args[:break_duration]
+        @end = @start + (args[:duration] + @break_duration)
+      else
+        @start = Time.new(args[:hash]["start"])
+        @label = args[:hash]["label"]
+        @break_duration = args[:hash]["break_duration"]
+        @end = Time.new(args[:hash]["end"])
+      end
     end
 
     def time_remaining
@@ -45,6 +53,24 @@ module Pomodoro
       @end = Time.now + @remaining_at_pause.to_i
     end 
 
+    def to_json(args= {})
+      hash = {}
+
+      self.instance_variables.each do |var|
+        hash[var_name] = self.instance_variable_get var
+      end
+      hash.to_json
+    end
+
+    def from_json string
+      
+      JSON.load(string).each do |var,val|
+        self.instance_variable_set var,val
+      end
+    end
+
+    
+    
   end
 end
   

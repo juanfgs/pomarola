@@ -39,7 +39,7 @@ class Pomarola
     @pomodoro_length = 1500
     @break_length = 300
     @long_break_multiplier = 4
-
+    @pomodoros = []
 
     @file_filter = Gtk::FileFilter.new
     @file_filter.name = "Pomarola Worklogs (*.pom)"
@@ -71,7 +71,7 @@ class Pomarola
     @pomodoro_renderer = Gtk::CellRendererText.new
     @past_pomodoros_view.model = @work_log
 
-
+    @default_label =  '(Double click to insert Label here)'
     
     generate_popover
 
@@ -143,9 +143,11 @@ class Pomarola
     dialog.add_filter @file_filter
     time = Time.new
     dialog.current_name  = "#{time.year}-#{time.month}-#{time.day} Work Log.pom"
-    
+    dialog.do_overwrite_confirmation = true
     if dialog.run == Gtk::ResponseType::ACCEPT
-      puts "filename = #{dialog.filename}"
+      target = open(dialog.filename, 'w')
+      target.truncate(0)
+      target.write(JSON.pretty_generate(@pomodoros))
     end
     dialog.destroy
   end
@@ -161,7 +163,17 @@ class Pomarola
     dialog.add_filter @file_filter
     
     if dialog.run == Gtk::ResponseType::ACCEPT
-      puts "filename = #{dialog.filename}"
+      pomodoros = JSON.parse( File.read(dialog.filename))
+      @work_log.clear
+      pomodoros.each do |pomodoro|
+        pp pomodoro
+        new_pomodoro = Pomodoro::Pomodoro.new :hash => pomodoro
+        
+        iter = @work_log.append()
+        iter[0] = new_pomodoro.label
+        iter[1] = new_pomodoro.start.strftime("%M:%S")
+
+       end
     end
     dialog.destroy
   end
@@ -169,7 +181,7 @@ class Pomarola
   def start_pomodoro(widget)
     if @stopped_pomodoro #If the pomodoro is returning from stopped, we create a new pomodoro
       @stopped_pomodoro = false
-      @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length)
+      @current_pomodoro = Pomodoro::Pomodoro.new({ :duration => @pomodoro_length, :break_duration => @break_length, :label => @default_label})
     else
       @current_pomodoro.resume #Recalculate current pomodoro status
     end
@@ -206,10 +218,10 @@ class Pomarola
       elsif !@stopped_pomodoro &&  (remaining.to_i <= 0) 
         update_log(@current_pomodoro)
         if @pomodoro_count == 3 #check whether is time for the long break 
-          @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length * @long_break_multiplier)
+          @current_pomodoro = Pomodoro::Pomodoro.new({ :duration => @pomodoro_length, :break_duration => @break_length * @long_break_multiplier, :label => @default_label})
           @pomodoro_count = 0
         else
-          @current_pomodoro = Pomodoro::Pomodoro.new(@pomodoro_length, @break_length)
+          @current_pomodoro = Pomodoro::Pomodoro.new({ :duration => @pomodoro_length, :break_duration => @break_length, :label => @default_label})
           @pomodoro_count += 1
         end
         @break_notify,@end_notify = false
@@ -226,8 +238,10 @@ class Pomarola
   def update_log(pomodoro)
     diff = pomodoro.start
     iter = @work_log.append()
-    iter[0] = '(Insert Label here)'
+    iter[0] = pomodoro.label
     iter[1] = diff.strftime("%M:%S")
+    @pomodoros << pomodoro
+    
   end
 
   #
