@@ -20,7 +20,7 @@ require 'json'
 module Pomodoro
 
   class Pomodoro
-    attr_accessor :label, :finished, :remaining_at_pause, :break_duration, :start
+    attr_accessor :label, :finished, :remaining_at_pause, :break_duration, :start, :paused
     
     def initialize(args)
       @finished = false

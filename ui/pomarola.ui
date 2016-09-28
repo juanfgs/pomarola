@@ -97,13 +97,13 @@
           </object>
         </child>
         <child>
-          <object class="GtkButton" id="start_pomodoro">
+          <object class="GtkToggleButton" id="start_pomodoro">
             <property name="label">gtk-media-play</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="use_stock">True</property>
-            <signal name="clicked" handler="start_pomodoro" swapped="no"/>
+            <signal name="toggled" handler="toggle_start" swapped="no"/>
           </object>
           <packing>
             <property name="position">1</property>
